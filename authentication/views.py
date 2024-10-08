@@ -1,25 +1,18 @@
 from django.shortcuts import render, redirect
-from pyexpat.errors import messages
-from . import forms
 from django.contrib.auth import authenticate, login, logout
+from django.conf import settings
+from . import forms
 
-def login_page(request):
-    form = forms.LoginForm()
-    message = ''
-
+def sign_up(request):
+    form = forms.SignupForm()
     if request.method == 'POST':
-        form = forms.LoginForm(request.POST)
+        form = forms.SignupForm(request.POST)
         if form.is_valid():
-            user = authenticate(
-                username=form.cleaned_data['username'],
-                password = form.cleaned_data['password']
-            )
-            if user is not None:
-                login(request, user)
-                return redirect('blog')
-        message = 'Identifiants invalides !'
+            user = form.save()
+            login(request, user)
+        return redirect(settings.LOGIN_URL)
+    return render(request, 'authentication/sign_up.html', {'form': form})
 
-    return render(request,'authentication/login.html', {'form': form, 'message': message})
 
 def logout_page(request):
     logout(request)

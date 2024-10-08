@@ -18,13 +18,18 @@ from django.contrib import admin
 from django.urls import path
 import authentication.views
 import blog.views
+from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordChangeDoneView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # AUTH
-    path('', authentication.views.login_page, name='login'),
+    path('', LoginView.as_view(template_name='authentication/login.html',
+                               redirect_authenticated_user=True,), name='login'),
     path('logout/', authentication.views.logout_page, name='logout'),
+    path('password-change/', PasswordChangeView.as_view(template_name='authentication/password_change.html'), name='password_change'),
+    path('password-change-done/', PasswordChangeDoneView.as_view(template_name='authentication/password_change_done.html'), name='password_change_done'),
+    path('sign-up/', authentication.views.sign_up, name='sign_up' ),
 
     # BLOG
-    path('blog/', blog.views.blog_home, name='blog'),
+    path('blog/', blog.views.BlogHomeView.as_view(), name='blog'),
 ]
