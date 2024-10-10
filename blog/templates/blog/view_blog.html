@@ -1,0 +1,16 @@
+
+{% extends 'base.html' %}
+{% block content %}
+    <h1>{{ blog.title }}</h1>
+    {% if blog.photo and blog.photo.image %}
+    <img src="{{ blog.photo.image.url }}" alt="Photo de blog">
+{% else %}
+    <p>Aucune image disponible</p>
+{% endif %}
+
+    <p>{{ blog.photo.caption }}</p>
+    <p>{{ blog.content }}</p>
+
+
+<a href="{% url 'edit_blog' blog.id %}" >Modifier un billet</a>
+{% endblock content %}

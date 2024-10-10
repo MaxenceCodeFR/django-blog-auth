@@ -3,7 +3,21 @@
         <title>FotoBlog</title>
     </head>
     <body>
+    <nav>
+    {% if user.is_authenticated %}
+        <a href="{% url 'blog' %}">Accueil</a>
+        <a href="{% url 'create_ticket' %}">Écrire un billet</a>
+        <a href="{% url 'upload_photo' %}">Télécharger une photo</a>
+        {% if user.profile_photo %}
+            <img src="{{ user.profile_photo.url }}" alt="Photo de profil" width="80" height="80">
+        {% else %}
+        <a href="{% url 'upload_profile_photo' %}">Ajouter une photo de profil</a>
+        {% endif %}
+    {% endif %}
+</nav>
+
         <h1>FotoBlog</h1>
+
         {% block content %}{% endblock %}
     {% if user.is_authenticated %}
             <p>Vous êtes connecté en tant que {{ request.user }}. <a href="{% url 'logout' %}">Se déconnecter</a></p>
