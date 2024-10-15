@@ -10,7 +10,9 @@
 
     <p>{{ blog.photo.caption }}</p>
     <p>{{ blog.content }}</p>
+<p> Nombre de mot : {{ blog.word_count }}</p>
 
-
+{% if perms.blog.change_blog %}
 <a href="{% url 'edit_blog' blog.id %}" >Modifier un billet</a>
+{% endif %}
 {% endblock content %}

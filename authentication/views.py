@@ -4,14 +4,21 @@ from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from . import forms
 
+
 def sign_up(request):
-    form = forms.SignupForm()
     if request.method == 'POST':
         form = forms.SignupForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-        return redirect(settings.LOGIN_URL)
+            user = form.save()  # Sauvegarde l'utilisateur
+            login(request, user)  # Connexion automatique de l'utilisateur
+            return redirect(settings.LOGIN_URL)  # Redirection si tout est OK
+        else:
+            # Afficher les erreurs si le formulaire n'est pas valide
+            print("Form errors:", form.errors)
+    else:
+        form = forms.SignupForm()
+
+    # Si le formulaire est invalide, ou si c'est une requête GET
     return render(request, 'authentication/sign_up.html', {'form': form})
 
 

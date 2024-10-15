@@ -1,8 +1,9 @@
-from lib2to3.fixes.fix_input import context
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+from django.forms import formset_factory
+from django.contrib.auth.decorators import permission_required
 
 
 from . import forms
@@ -18,23 +19,28 @@ class BlogHomeView(LoginRequiredMixin, View):
         blogs = models.Blog.objects.all()
         return render(request, self.template_name, {'photos': photos, 'blogs': blogs})
 
-
-class PhotoUploadView(LoginRequiredMixin, View):
+class PhotoUploadView(LoginRequiredMixin, PermissionRequiredMixin, View):
     template_name = 'blog/photo_upload.html'
     login_url = 'login'
+    permission_required = 'blog.add_photo'
+    raise_exception = True
 
     def get(self, request):
-        form = forms.PhotoForm()
-        return render(request, self.template_name, {'form': form})
+        PhotoFormSet = formset_factory(forms.PhotoForm, extra=5)
+        formset = PhotoFormSet()
+        return render(request, self.template_name, {'formset': formset})
 
     def post(self, request):
-        form = forms.PhotoForm(request.POST, request.FILES)
-        if form.is_valid():
-            photo = form.save(commit=False)
-            photo.uploader = request.user
-            photo.save()
+        PhotoFormSet = formset_factory(forms.PhotoForm, extra=5)
+        formset = PhotoFormSet(request.POST, request.FILES)
+        if formset.is_valid():
+            for form in formset:
+                if form.cleaned_data:
+                    photo = form.save(commit=False)
+                    photo.uploader = request.user
+                    photo.save()
             return redirect('blog')
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'formset': formset})
 
 
 class BlogAndPhotoView(LoginRequiredMixin, View):
@@ -81,9 +87,11 @@ class ShowBlogView(View):
         blog = get_object_or_404(models.Blog, id=blog_id)
         return render(request, self.template_name, {'blog': blog})
 
-class EditBlogView(View):
+class EditBlogView(LoginRequiredMixin, PermissionRequiredMixin, View):
     template_name = 'blog/edit_blog.html'
     login_url = 'login'
+    permission_required = 'blog.change_blog'
+    raise_exception = True
 
     def get(self, request, blog_id):
         blog = get_object_or_404(models.Blog, id=blog_id)
